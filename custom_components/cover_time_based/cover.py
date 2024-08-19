@@ -246,6 +246,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     
     
     async def _async_handle_command(self, command, *args):
+        self.schedule_update_ha_state()
+        
         if command == "close_cover":
             cmd = "DOWN"
             self._state = False
