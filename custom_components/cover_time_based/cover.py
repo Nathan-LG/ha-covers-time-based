@@ -153,7 +153,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     @property
     def is_open(self):
         """Return if the cover is opened."""
-        return self.tc.is_open()
+        return not self.is_closed and not self.is_closing and not self.is_opening
 
     @property
     def assumed_state(self):
@@ -261,6 +261,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         elif command == "stop_cover":
             cmd = "STOP"
             self._state = True
+
+	    _LOGGER.debug('_async_handle_command :: closed %r ; closing %r ; open %r ; opening %r', self.is_closed, self.is_closing, self.is_open, self.is_opening)
             
             if self.is_opening or self.is_open:
                 await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._open_switch_entity_id}, False)
