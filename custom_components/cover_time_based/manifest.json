@@ -6,5 +6,6 @@
   "requirements": [
     "xknx==0.9.4"
   ],
-  "codeowners": ["@davidramosweb"]
+  "codeowners": ["@davidramosweb"],
+  "loggers": ["custom_components.cover_time_based"]
 }
