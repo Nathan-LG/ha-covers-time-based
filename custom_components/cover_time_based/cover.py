@@ -91,6 +91,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         self._unsubscribe_auto_updater = None
 
         self.tc = TravelCalculator(self._travel_time_down, self._travel_time_up)
+        self._is_travelling_internal = False
 
     async def async_added_to_hass(self):
         """ Only cover's position matters.             """
@@ -219,7 +220,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     @callback
     def auto_updater_hook(self, now):
         """Call for the autoupdater."""
-        _LOGGER.debug('auto_updater_hook :: closed %r ; closing %r ; open %r ; opening %r', self.is_closed, self.is_closing, self.is_open, self.is_opening)
+        _LOGGER.debug('auto_updater_hook')
         self.async_schedule_update_ha_state()
         if self.position_reached():
             _LOGGER.debug('auto_updater_hook :: position_reached')
@@ -253,27 +254,31 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             self._state = False
             await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._open_switch_entity_id}, False)
             await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._close_switch_entity_id}, False)
+
+            self._is_travelling_internal = True
             
         elif command == "open_cover":
             cmd = "UP"
             self._state = True
             await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._close_switch_entity_id}, False)
             await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._open_switch_entity_id}, False)
+
+            self._is_travelling_internal = True
  
         elif command == "stop_cover":
             cmd = "STOP"
             self._state = True
-
-            _LOGGER.debug('_async_handle_command :: closed %r ; closing %r ; open %r ; opening %r', self.is_closed, self.is_closing, self.is_open, self.is_opening)
             
-            if self.is_opening or self.is_open:
+            if self._is_travelling_internal and self.is_open:
                 await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._open_switch_entity_id}, False)
                 await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._close_switch_entity_id}, False)
                 _LOGGER.debug('_async_handle_command :: turning on OPEN CMD because cover is opening/open')
-            elif self.is_closing or self.is_closed:
+            elif self._is_travelling_internal and self.is_closed:
                 await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._close_switch_entity_id}, False)
                 await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._open_switch_entity_id}, False)
                 _LOGGER.debug('_async_handle_command :: turning on CLOSE CMD because cover is closing/closed')
+
+            self._is_travelling_internal = False
 
         _LOGGER.debug('_async_handle_command :: %s', cmd)
         
