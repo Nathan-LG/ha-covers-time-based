@@ -264,13 +264,13 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             cmd = "STOP"
             self._state = True
             
-            _LOGGER.debug('_async_handle_command :: closed %r ; closing %r ; open %r ; opening %r', self.is_closed, self.is_closing, self.is_open, self.is_opening)
-            
             if self.is_opening or self.is_open:
                 await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._open_switch_entity_id}, False)
+                await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._close_switch_entity_id}, False)
                 _LOGGER.debug('_async_handle_command :: turning on OPEN CMD because cover is opening/open')
             elif self.is_closing or self.is_closed:
                 await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._close_switch_entity_id}, False)
+                await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._open_switch_entity_id}, False)
                 _LOGGER.debug('_async_handle_command :: turning on CLOSE CMD because cover is closing/closed')
 
         _LOGGER.debug('_async_handle_command :: %s', cmd)
