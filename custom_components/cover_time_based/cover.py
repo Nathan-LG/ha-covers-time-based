@@ -301,7 +301,9 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             cmd = "DOWN"
             self._state = False
 
-            if self._is_travelling_internal and (self.is_closed or self.is_closing):
+            if not (
+                self._is_travelling_internal and (self.is_closed or self.is_closing)
+            ):
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_off",
@@ -319,7 +321,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             cmd = "UP"
             self._state = True
 
-            if self._is_travelling_internal and (self.is_open or self.is_opening):
+            if not (self._is_travelling_internal and (self.is_open or self.is_opening)):
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_off",
