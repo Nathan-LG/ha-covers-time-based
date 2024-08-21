@@ -159,7 +159,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     @property
     def assumed_state(self):
         """Return True because covers can be stopped midway."""
-        return True
+        return False
 
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
@@ -171,6 +171,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     async def async_close_cover(self, **kwargs):
         """Turn the device close."""
         _LOGGER.debug('async_close_cover')
+        
         self.tc.start_travel_down()
 
         self.start_auto_updater()
