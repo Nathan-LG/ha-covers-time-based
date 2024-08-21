@@ -325,7 +325,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             cmd = "STOP"
             self._state = True
 
-            if self._is_travelling_internal and self.is_open:
+            if self._is_travelling_internal and (self.is_open or self.is_opening):
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
@@ -341,7 +341,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug(
                     "_async_handle_command :: turning on OPEN CMD because cover is opening/open"
                 )
-            elif self._is_travelling_internal and self.is_closed:
+            elif self._is_travelling_internal and (self.is_closed or self.is_closing):
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
