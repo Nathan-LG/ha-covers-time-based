@@ -26,6 +26,7 @@ from homeassistant.const import (
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.restore_state import RestoreEntity
+import asyncio
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -316,6 +317,20 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._close_switch_entity_id},
                     False,
                 )
+            elif self._is_travelling_internal and self.is_opening:
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_off",
+                    {"entity_id": self._close_switch_entity_id},
+                    False,
+                )
+                await asyncio.sleep(1)
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._open_switch_entity_id},
+                    False,
+                )
             else:
                 change_travelling = False
 
@@ -334,6 +349,20 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     "homeassistant",
                     "turn_on",
                     {"entity_id": self._open_switch_entity_id},
+                    False,
+                )
+            elif self._is_travelling_internal and self.is_closing:
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_off",
+                    {"entity_id": self._open_switch_entity_id},
+                    False,
+                )
+                await asyncio.sleep(1)
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._close_switch_entity_id},
                     False,
                 )
             else:
