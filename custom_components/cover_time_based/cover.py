@@ -256,7 +256,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     @callback
     def auto_updater_hook(self, now):
         """Call for the autoupdater."""
-        _LOGGER.debug("auto_updater_hook")
         self.async_schedule_update_ha_state()
         if self.position_reached():
             _LOGGER.debug("auto_updater_hook :: position_reached")
@@ -286,6 +285,15 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
 
     async def _async_handle_command(self, command, *args):
         self.schedule_update_ha_state()
+
+        _LOGGER.debug("--- BEFORE ---")
+        _LOGGER.debug(
+            "_async_handle_command :: travelling %r", self._is_travelling_internal
+        )
+        _LOGGER.debug("_async_handle_command :: open %r", self.is_open)
+        _LOGGER.debug("_async_handle_command :: opening %r", self.is_opening)
+        _LOGGER.debug("_async_handle_command :: closed %r", self.is_closed)
+        _LOGGER.debug("_async_handle_command :: closing %r", self.is_closing)
 
         change_travelling = True
 
@@ -364,7 +372,15 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             self._is_travelling_internal = not self._is_travelling_internal
 
         _LOGGER.debug("_async_handle_command :: %s", cmd)
-        _LOGGER.debug("is_travelling_internal :: %r", self._is_travelling_internal)
+
+        _LOGGER.debug("--- AFTER ---")
+        _LOGGER.debug(
+            "_async_handle_command :: travelling %r", self._is_travelling_internal
+        )
+        _LOGGER.debug("_async_handle_command :: open %r", self.is_open)
+        _LOGGER.debug("_async_handle_command :: opening %r", self.is_opening)
+        _LOGGER.debug("_async_handle_command :: closed %r", self.is_closed)
+        _LOGGER.debug("_async_handle_command :: closing %r", self.is_closing)
 
         # Update state of entity
         self.async_write_ha_state()
