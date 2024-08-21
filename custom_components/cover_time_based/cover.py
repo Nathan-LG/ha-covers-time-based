@@ -378,6 +378,9 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             else:
                 change_travelling = False
 
+        _LOGGER.debug("--- DURING ---")
+        _LOGGER.debug("change_travelling %r", change_travelling)
+
         if change_travelling:
             self._is_travelling_internal = not self._is_travelling_internal
 
