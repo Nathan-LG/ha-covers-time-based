@@ -316,6 +316,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     False,
                 )
             elif self._is_travelling_internal and self.is_opening:
+                _LOGGER.debug("_async_handle_command :: changing direction")
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_off",
@@ -329,6 +330,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._open_switch_entity_id},
                     False,
                 )
+                _LOGGER.debug("_async_handle_command :: direction changed")
             else:
                 change_travelling = False
 
@@ -350,6 +352,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     False,
                 )
             elif self._is_travelling_internal and self.is_opening:
+                _LOGGER.debug("_async_handle_command :: changing direction")
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_off",
@@ -363,6 +366,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._close_switch_entity_id},
                     False,
                 )
+                _LOGGER.debug("_async_handle_command :: direction changed")
             else:
                 change_travelling = False
 
