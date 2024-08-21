@@ -281,7 +281,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             self._is_travelling_internal = False
 
         _LOGGER.debug('_async_handle_command :: %s', cmd)
-        _LOGGER.debug('is_travelling_internal :: %r', self._is_travalling_internal)
+        _LOGGER.debug('is_travelling_internal :: %r', self._is_travelling_internal)
         
         # Update state of entity
         self.async_write_ha_state()
