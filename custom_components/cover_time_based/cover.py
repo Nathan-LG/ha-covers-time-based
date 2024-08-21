@@ -316,6 +316,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._close_switch_entity_id},
                     False,
                 )
+            else:
+                change_travelling = False
 
         elif command == "open_cover":
             cmd = "UP"
@@ -334,6 +336,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._open_switch_entity_id},
                     False,
                 )
+            else:
+                change_travelling = False
 
         elif command == "stop_cover":
             cmd = "STOP"
