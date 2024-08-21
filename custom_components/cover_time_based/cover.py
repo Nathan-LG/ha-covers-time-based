@@ -159,7 +159,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     @property
     def assumed_state(self):
         """Return True because covers can be stopped midway."""
-        return False
+        return True
 
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
