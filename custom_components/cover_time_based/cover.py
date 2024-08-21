@@ -266,8 +266,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         """Stop the autoupdater."""
         _LOGGER.debug("stop_auto_updater")
 
-        self._is_travelling_internal = False
-
         if self._unsubscribe_auto_updater is not None:
             self._unsubscribe_auto_updater()
             self._unsubscribe_auto_updater = None
@@ -280,6 +278,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         """Do auto stop if necessary."""
         if self.position_reached():
             _LOGGER.debug("auto_stop_if_necessary :: calling stop command")
+
+            self._is_travelling_internal = False
             await self._async_handle_command(SERVICE_STOP_COVER)
             self.tc.stop()
 
