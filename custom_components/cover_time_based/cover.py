@@ -1,4 +1,5 @@
 """Cover Time based."""
+
 import logging
 
 import voluptuous as vol
@@ -6,7 +7,10 @@ import voluptuous as vol
 from datetime import timedelta
 
 from homeassistant.core import callback
-from homeassistant.helpers.event import async_track_utc_time_change, async_track_time_interval
+from homeassistant.helpers.event import (
+    async_track_utc_time_change,
+    async_track_time_interval,
+)
 from homeassistant.components.cover import (
     ATTR_CURRENT_POSITION,
     ATTR_POSITION,
@@ -25,15 +29,15 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-CONF_DEVICES = 'devices'
-CONF_NAME = 'name'
-CONF_ALIASES = 'aliases'
-CONF_TRAVELLING_TIME_DOWN = 'travelling_time_down'
-CONF_TRAVELLING_TIME_UP = 'travelling_time_up'
+CONF_DEVICES = "devices"
+CONF_NAME = "name"
+CONF_ALIASES = "aliases"
+CONF_TRAVELLING_TIME_DOWN = "travelling_time_down"
+CONF_TRAVELLING_TIME_UP = "travelling_time_up"
 DEFAULT_TRAVEL_TIME = 25
 
-CONF_OPEN_SWITCH_ENTITY_ID = 'open_switch_entity_id'
-CONF_CLOSE_SWITCH_ENTITY_ID = 'close_switch_entity_id'
+CONF_OPEN_SWITCH_ENTITY_ID = "open_switch_entity_id"
+CONF_CLOSE_SWITCH_ENTITY_ID = "close_switch_entity_id"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -43,18 +47,21 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                     vol.Optional(CONF_NAME): cv.string,
                     vol.Optional(CONF_OPEN_SWITCH_ENTITY_ID): cv.string,
                     vol.Optional(CONF_CLOSE_SWITCH_ENTITY_ID): cv.string,
-                    vol.Optional(CONF_ALIASES, default=[]):
-                        vol.All(cv.ensure_list, [cv.string]),
-
-                    vol.Optional(CONF_TRAVELLING_TIME_DOWN, default=DEFAULT_TRAVEL_TIME):
-                        cv.positive_int,
-                    vol.Optional(CONF_TRAVELLING_TIME_UP, default=DEFAULT_TRAVEL_TIME):
-                        cv.positive_int,
+                    vol.Optional(CONF_ALIASES, default=[]): vol.All(
+                        cv.ensure_list, [cv.string]
+                    ),
+                    vol.Optional(
+                        CONF_TRAVELLING_TIME_DOWN, default=DEFAULT_TRAVEL_TIME
+                    ): cv.positive_int,
+                    vol.Optional(
+                        CONF_TRAVELLING_TIME_UP, default=DEFAULT_TRAVEL_TIME
+                    ): cv.positive_int,
                 }
             }
         ),
     }
 )
+
 
 def devices_from_config(domain_config):
     """Parse configuration and add cover devices."""
@@ -65,50 +72,68 @@ def devices_from_config(domain_config):
         travel_time_up = config.pop(CONF_TRAVELLING_TIME_UP)
         open_switch_entity_id = config.pop(CONF_OPEN_SWITCH_ENTITY_ID)
         close_switch_entity_id = config.pop(CONF_CLOSE_SWITCH_ENTITY_ID)
-        device = CoverTimeBased(device_id, name, travel_time_down, travel_time_up, open_switch_entity_id, close_switch_entity_id)
+        device = CoverTimeBased(
+            device_id,
+            name,
+            travel_time_down,
+            travel_time_up,
+            open_switch_entity_id,
+            close_switch_entity_id,
+        )
         devices.append(device)
     return devices
+
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the cover platform."""
     async_add_entities(devices_from_config(config))
 
+
 class CoverTimeBased(CoverEntity, RestoreEntity):
-	
-    def __init__(self, device_id, name, travel_time_down, travel_time_up, open_switch_entity_id, close_switch_entity_id):
+
+    def __init__(
+        self,
+        device_id,
+        name,
+        travel_time_down,
+        travel_time_up,
+        open_switch_entity_id,
+        close_switch_entity_id,
+    ):
         """Initialize the cover."""
         from xknx.devices import TravelCalculator
+
         self._travel_time_down = travel_time_down
         self._travel_time_up = travel_time_up
         self._open_switch_entity_id = open_switch_entity_id
-        self._close_switch_entity_id = close_switch_entity_id        
-        
+        self._close_switch_entity_id = close_switch_entity_id
+
         if name:
             self._name = name
         else:
             self._name = device_id
-		
+
         self._unsubscribe_auto_updater = None
 
         self.tc = TravelCalculator(self._travel_time_down, self._travel_time_up)
         self._is_travelling_internal = False
 
     async def async_added_to_hass(self):
-        """ Only cover's position matters.             """
+        """Only cover's position matters."""
         """ The rest is calculated from this attribute."""
         old_state = await self.async_get_last_state()
-        _LOGGER.debug('async_added_to_hass :: oldState %s', old_state)
+        _LOGGER.debug("async_added_to_hass :: oldState %s", old_state)
         if (
-                old_state is not None and
-                self.tc is not None and
-                old_state.attributes.get(ATTR_CURRENT_POSITION) is not None):
-            self.tc.set_position(int(
-                old_state.attributes.get(ATTR_CURRENT_POSITION)))
+            old_state is not None
+            and self.tc is not None
+            and old_state.attributes.get(ATTR_CURRENT_POSITION) is not None
+        ):
+            self.tc.set_position(int(old_state.attributes.get(ATTR_CURRENT_POSITION)))
 
     def _handle_my_button(self):
         """Handle the MY button press"""
         if self.tc.is_traveling():
-            _LOGGER.debug('_handle_my_button :: button stops cover')
+            _LOGGER.debug("_handle_my_button :: button stops cover")
             self.tc.stop()
             self.stop_auto_updater()
 
@@ -136,15 +161,21 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     def is_opening(self):
         """Return if the cover is opening or not."""
         from xknx.devices import TravelStatus
-        return self.tc.is_traveling() and \
-               self.tc.travel_direction == TravelStatus.DIRECTION_UP
+
+        return (
+            self.tc.is_traveling()
+            and self.tc.travel_direction == TravelStatus.DIRECTION_UP
+        )
 
     @property
     def is_closing(self):
         """Return if the cover is closing or not."""
         from xknx.devices import TravelStatus
-        return self.tc.is_traveling() and \
-               self.tc.travel_direction == TravelStatus.DIRECTION_DOWN
+
+        return (
+            self.tc.is_traveling()
+            and self.tc.travel_direction == TravelStatus.DIRECTION_DOWN
+        )
 
     @property
     def is_closed(self):
@@ -159,19 +190,19 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     @property
     def assumed_state(self):
         """Return True because covers can be stopped midway."""
-        return False
+        return True
 
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
         if ATTR_POSITION in kwargs:
             position = kwargs[ATTR_POSITION]
-            _LOGGER.debug('async_set_cover_position: %d', position)
+            _LOGGER.debug("async_set_cover_position: %d", position)
             await self.set_position(position)
 
     async def async_close_cover(self, **kwargs):
         """Turn the device close."""
-        _LOGGER.debug('async_close_cover')
-        
+        _LOGGER.debug("async_close_cover")
+
         self.tc.start_travel_down()
 
         self.start_auto_updater()
@@ -179,7 +210,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
 
     async def async_open_cover(self, **kwargs):
         """Turn the device open."""
-        _LOGGER.debug('async_open_cover')
+        _LOGGER.debug("async_open_cover")
         self.tc.start_travel_up()
 
         self.start_auto_updater()
@@ -187,16 +218,19 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
 
     async def async_stop_cover(self, **kwargs):
         """Turn the device stop."""
-        _LOGGER.debug('async_stop_cover')
+        _LOGGER.debug("async_stop_cover")
         self._handle_my_button()
         await self._async_handle_command(SERVICE_STOP_COVER)
 
     async def set_position(self, position):
-        _LOGGER.debug('set_position')
+        _LOGGER.debug("set_position")
         """Move cover to a designated position."""
         current_position = self.tc.current_position()
-        _LOGGER.debug('set_position :: current_position: %d, new_position: %d',
-                      current_position, position)
+        _LOGGER.debug(
+            "set_position :: current_position: %d, new_position: %d",
+            current_position,
+            position,
+        )
         command = None
         if position < current_position:
             command = SERVICE_CLOSE_COVER
@@ -205,32 +239,36 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         if command is not None:
             self.start_auto_updater()
             self.tc.start_travel(position)
-            _LOGGER.debug('set_position :: command %s', command)
+            _LOGGER.debug("set_position :: command %s", command)
             await self._async_handle_command(command)
         return
 
     def start_auto_updater(self):
         """Start the autoupdater to update HASS while cover is moving."""
-        _LOGGER.debug('start_auto_updater')
+        _LOGGER.debug("start_auto_updater")
         if self._unsubscribe_auto_updater is None:
-            _LOGGER.debug('init _unsubscribe_auto_updater')
+            _LOGGER.debug("init _unsubscribe_auto_updater")
             interval = timedelta(seconds=0.1)
             self._unsubscribe_auto_updater = async_track_time_interval(
-                self.hass, self.auto_updater_hook, interval)
+                self.hass, self.auto_updater_hook, interval
+            )
 
     @callback
     def auto_updater_hook(self, now):
         """Call for the autoupdater."""
-        _LOGGER.debug('auto_updater_hook')
+        _LOGGER.debug("auto_updater_hook")
         self.async_schedule_update_ha_state()
         if self.position_reached():
-            _LOGGER.debug('auto_updater_hook :: position_reached')
+            _LOGGER.debug("auto_updater_hook :: position_reached")
             self.stop_auto_updater()
         self.hass.async_create_task(self.auto_stop_if_necessary())
 
     def stop_auto_updater(self):
         """Stop the autoupdater."""
-        _LOGGER.debug('stop_auto_updater')
+        _LOGGER.debug("stop_auto_updater")
+
+        self._is_travelling_internal = False
+
         if self._unsubscribe_auto_updater is not None:
             self._unsubscribe_auto_updater()
             self._unsubscribe_auto_updater = None
@@ -242,47 +280,86 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     async def auto_stop_if_necessary(self):
         """Do auto stop if necessary."""
         if self.position_reached():
-            _LOGGER.debug('auto_stop_if_necessary :: calling stop command')
+            _LOGGER.debug("auto_stop_if_necessary :: calling stop command")
             await self._async_handle_command(SERVICE_STOP_COVER)
             self.tc.stop()
-    
-    
+
     async def _async_handle_command(self, command, *args):
         self.schedule_update_ha_state()
-        
+
         if command == "close_cover":
             cmd = "DOWN"
             self._state = False
-            await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._open_switch_entity_id}, False)
-            await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._close_switch_entity_id}, False)
+            await self.hass.services.async_call(
+                "homeassistant",
+                "turn_off",
+                {"entity_id": self._open_switch_entity_id},
+                False,
+            )
+            await self.hass.services.async_call(
+                "homeassistant",
+                "turn_on",
+                {"entity_id": self._close_switch_entity_id},
+                False,
+            )
 
-            self._is_travelling_internal = True
-            
         elif command == "open_cover":
             cmd = "UP"
             self._state = True
-            await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._close_switch_entity_id}, False)
-            await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._open_switch_entity_id}, False)
+            await self.hass.services.async_call(
+                "homeassistant",
+                "turn_off",
+                {"entity_id": self._close_switch_entity_id},
+                False,
+            )
+            await self.hass.services.async_call(
+                "homeassistant",
+                "turn_on",
+                {"entity_id": self._open_switch_entity_id},
+                False,
+            )
 
-            self._is_travelling_internal = True
- 
         elif command == "stop_cover":
             cmd = "STOP"
             self._state = True
-            
+
             if self._is_travelling_internal and self.is_open:
-                await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._open_switch_entity_id}, False)
-                await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._close_switch_entity_id}, False)
-                _LOGGER.debug('_async_handle_command :: turning on OPEN CMD because cover is opening/open')
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._open_switch_entity_id},
+                    False,
+                )
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_off",
+                    {"entity_id": self._close_switch_entity_id},
+                    False,
+                )
+                _LOGGER.debug(
+                    "_async_handle_command :: turning on OPEN CMD because cover is opening/open"
+                )
             elif self._is_travelling_internal and self.is_closed:
-                await self.hass.services.async_call("homeassistant", "turn_on", {"entity_id": self._close_switch_entity_id}, False)
-                await self.hass.services.async_call("homeassistant", "turn_off", {"entity_id": self._open_switch_entity_id}, False)
-                _LOGGER.debug('_async_handle_command :: turning on CLOSE CMD because cover is closing/closed')
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._close_switch_entity_id},
+                    False,
+                )
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_off",
+                    {"entity_id": self._open_switch_entity_id},
+                    False,
+                )
+                _LOGGER.debug(
+                    "_async_handle_command :: turning on CLOSE CMD because cover is closing/closed"
+                )
 
-            self._is_travelling_internal = False
+        self._is_travelling_internal = not self._is_travelling_internal
 
-        _LOGGER.debug('_async_handle_command :: %s', cmd)
-        _LOGGER.debug('is_travelling_internal :: %r', self._is_travelling_internal)
-        
+        _LOGGER.debug("_async_handle_command :: %s", cmd)
+        _LOGGER.debug("is_travelling_internal :: %r", self._is_travelling_internal)
+
         # Update state of entity
         self.async_write_ha_state()
