@@ -287,6 +287,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     async def _async_handle_command(self, command, *args):
         self.schedule_update_ha_state()
 
+        change_travelling = True
+
         if command == "close_cover":
             cmd = "DOWN"
             self._state = False
@@ -355,8 +357,11 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug(
                     "_async_handle_command :: turning on CLOSE CMD because cover is closing/closed"
                 )
+            else:
+                change_travelling = False
 
-        self._is_travelling_internal = not self._is_travelling_internal
+        if change_travelling:
+            self._is_travelling_internal = not self._is_travelling_internal
 
         _LOGGER.debug("_async_handle_command :: %s", cmd)
         _LOGGER.debug("is_travelling_internal :: %r", self._is_travelling_internal)
