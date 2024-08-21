@@ -300,34 +300,38 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         if command == "close_cover":
             cmd = "DOWN"
             self._state = False
-            await self.hass.services.async_call(
-                "homeassistant",
-                "turn_off",
-                {"entity_id": self._open_switch_entity_id},
-                False,
-            )
-            await self.hass.services.async_call(
-                "homeassistant",
-                "turn_on",
-                {"entity_id": self._close_switch_entity_id},
-                False,
-            )
+
+            if self._is_travelling_internal and (self.is_closed or self.is_closing):
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_off",
+                    {"entity_id": self._open_switch_entity_id},
+                    False,
+                )
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._close_switch_entity_id},
+                    False,
+                )
 
         elif command == "open_cover":
             cmd = "UP"
             self._state = True
-            await self.hass.services.async_call(
-                "homeassistant",
-                "turn_off",
-                {"entity_id": self._close_switch_entity_id},
-                False,
-            )
-            await self.hass.services.async_call(
-                "homeassistant",
-                "turn_on",
-                {"entity_id": self._open_switch_entity_id},
-                False,
-            )
+
+            if self._is_travelling_internal and (self.is_open or self.is_opening):
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_off",
+                    {"entity_id": self._close_switch_entity_id},
+                    False,
+                )
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._open_switch_entity_id},
+                    False,
+                )
 
         elif command == "stop_cover":
             cmd = "STOP"
