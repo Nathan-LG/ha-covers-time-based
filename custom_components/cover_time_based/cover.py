@@ -334,7 +334,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     "homeassistant",
                     "turn_on",
                     {"entity_id": self._open_switch_entity_id},
-                    False,
+                    True,
                 )
                 _LOGGER.debug("_async_handle_command :: direction changed")
             else:
@@ -376,7 +376,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     "homeassistant",
                     "turn_on",
                     {"entity_id": self._close_switch_entity_id},
-                    False,
+                    True,
                 )
                 _LOGGER.debug("_async_handle_command :: direction changed")
             else:
