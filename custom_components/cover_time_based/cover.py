@@ -329,7 +329,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._open_switch_entity_id},
                     True,
                 )  # PAS ENVOYÉ
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
@@ -371,7 +371,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._close_switch_entity_id},
                     True,
                 )  # PAS ENVOYÉ
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
