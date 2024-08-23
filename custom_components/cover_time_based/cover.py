@@ -203,17 +203,12 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     async def async_close_cover(self, **kwargs):
         """Turn the device close."""
         _LOGGER.debug("async_close_cover")
-
-        self.tc.start_travel_down()
-
         self.start_auto_updater()
         await self._async_handle_command(SERVICE_CLOSE_COVER)
 
     async def async_open_cover(self, **kwargs):
         """Turn the device open."""
         _LOGGER.debug("async_open_cover")
-        self.tc.start_travel_up()
-
         self.start_auto_updater()
         await self._async_handle_command(SERVICE_OPEN_COVER)
 
@@ -315,6 +310,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._close_switch_entity_id},
                     False,
                 )
+                self.tc.start_travel_down()
             elif self._is_travelling_internal and self.is_closing:
                 _LOGGER.debug("_async_handle_command :: changing direction")
                 await self.hass.services.async_call(
@@ -343,6 +339,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._open_switch_entity_id},
                     True,
                 )
+                self.tc.start_travel_down()
                 _LOGGER.debug("_async_handle_command :: direction changed")
             else:
                 change_travelling = False
@@ -364,6 +361,9 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._open_switch_entity_id},
                     False,
                 )
+
+                self.tc.start_travel_up()
+
             elif self._is_travelling_internal and self.is_opening:
                 _LOGGER.debug("_async_handle_command :: changing direction")
                 await self.hass.services.async_call(
@@ -392,6 +392,9 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._close_switch_entity_id},
                     True,
                 )
+
+                self.tc.start_travel_up()
+
                 _LOGGER.debug("_async_handle_command :: direction changed")
             else:
                 change_travelling = False
