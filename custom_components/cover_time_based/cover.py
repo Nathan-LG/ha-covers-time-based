@@ -340,7 +340,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
-                    {"entity_id": self._close_switch_entity_id},
+                    {"entity_id": self._open_switch_entity_id},
                     True,
                 )
                 _LOGGER.debug("_async_handle_command :: direction changed")
@@ -389,7 +389,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
-                    {"entity_id": self._open_switch_entity_id},
+                    {"entity_id": self._close_switch_entity_id},
                     True,
                 )
                 _LOGGER.debug("_async_handle_command :: direction changed")
