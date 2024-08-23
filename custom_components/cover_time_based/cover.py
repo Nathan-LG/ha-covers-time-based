@@ -257,7 +257,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         self.async_schedule_update_ha_state()
         if self.position_reached():
             _LOGGER.debug("auto_updater_hook :: position_reached")
-            self.tc.set_position(50)
             self.stop_auto_updater()
         self.hass.async_create_task(self.auto_stop_if_necessary())
 
