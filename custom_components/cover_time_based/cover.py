@@ -203,16 +203,20 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
     async def async_close_cover(self, **kwargs):
         """Turn the device close."""
         _LOGGER.debug("async_close_cover")
-        self.tc.start_travel_down()
-        self.start_auto_updater()
-        await self._async_handle_command(SERVICE_CLOSE_COVER)
+
+        if not self.is_closing:
+            self.tc.start_travel_down()
+            self.start_auto_updater()
+            await self._async_handle_command(SERVICE_CLOSE_COVER)
 
     async def async_open_cover(self, **kwargs):
         """Turn the device open."""
         _LOGGER.debug("async_open_cover")
-        self.tc.start_travel_up()
-        self.start_auto_updater()
-        await self._async_handle_command(SERVICE_OPEN_COVER)
+
+        if not self.is_opening:
+            self.tc.start_travel_up()
+            self.start_auto_updater()
+            await self._async_handle_command(SERVICE_OPEN_COVER)
 
     async def async_stop_cover(self, **kwargs):
         """Turn the device stop."""
@@ -316,25 +320,11 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug("_async_handle_command :: changing direction")
                 await self.hass.services.async_call(
                     "homeassistant",
-                    "turn_on",
-                    {"entity_id": self._open_switch_entity_id},
-                    True,
-                )
-                await asyncio.sleep(0.7)
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._open_switch_entity_id},
-                    True,
-                )
-                await asyncio.sleep(0.7)
-                await self.hass.services.async_call(
-                    "homeassistant",
                     "turn_off",
                     {"entity_id": self._close_switch_entity_id},
                     True,
                 )
-                await asyncio.sleep(0.7)
+                await asyncio.sleep(10)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
@@ -368,25 +358,11 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug("_async_handle_command :: changing direction")
                 await self.hass.services.async_call(
                     "homeassistant",
-                    "turn_on",
-                    {"entity_id": self._open_switch_entity_id},
-                    True,
-                )
-                await asyncio.sleep(0.7)
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._open_switch_entity_id},
-                    True,
-                )
-                await asyncio.sleep(0.7)
-                await self.hass.services.async_call(
-                    "homeassistant",
                     "turn_off",
                     {"entity_id": self._close_switch_entity_id},
                     True,
                 )
-                await asyncio.sleep(0.7)
+                await asyncio.sleep(10)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
