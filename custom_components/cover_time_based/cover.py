@@ -315,31 +315,34 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug("_async_handle_command :: changing direction")
                 await self.hass.services.async_call(
                     "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._open_switch_entity_id},
+                    True,
+                )
+                await asyncio.sleep(0.7)
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_off",
+                    {"entity_id": self._open_switch_entity_id},
+                    True,
+                )
+                await asyncio.sleep(0.7)
+                await self.hass.services.async_call(
+                    "homeassistant",
                     "turn_off",
                     {"entity_id": self._close_switch_entity_id},
-                    False,
+                    True,
                 )
+                await asyncio.sleep(0.7)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
-                    {"entity_id": self._open_switch_entity_id},
+                    {"entity_id": self._close_switch_entity_id},
                     True,
                 )
-                await asyncio.sleep(1)
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._open_switch_entity_id},
-                    True,
-                )
-                await asyncio.sleep(1)
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_on",
-                    {"entity_id": self._open_switch_entity_id},
-                    True,
-                )
+
                 self.tc.start_travel_down()
+
                 _LOGGER.debug("_async_handle_command :: direction changed")
             else:
                 change_travelling = False
@@ -368,24 +371,25 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug("_async_handle_command :: changing direction")
                 await self.hass.services.async_call(
                     "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._open_switch_entity_id},
+                    True,
+                )
+                await asyncio.sleep(0.7)
+                await self.hass.services.async_call(
+                    "homeassistant",
                     "turn_off",
                     {"entity_id": self._open_switch_entity_id},
-                    False,
-                )
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_on",
-                    {"entity_id": self._close_switch_entity_id},
                     True,
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.7)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_off",
                     {"entity_id": self._close_switch_entity_id},
                     True,
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.7)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
