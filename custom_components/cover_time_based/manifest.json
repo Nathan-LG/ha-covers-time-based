@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "documentation": "https://github.com/davidramosweb/home-assistant-custom-components-cover-time-based",
   "requirements": [
-    "xknx==3.1.0"
+    "xknx==3.1.1"
   ],
   "codeowners": ["@davidramosweb", "@Nathan-LG"],
   "loggers": ["custom_components.cover_time_based"]
