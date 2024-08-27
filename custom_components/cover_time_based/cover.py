@@ -402,7 +402,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug(
                     "_async_handle_command :: turning on OPEN CMD because cover is opening/open"
                 )
-            elif self._state_interval == STATE_CLOSING:
+            elif self._state_internal == STATE_CLOSING:
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
