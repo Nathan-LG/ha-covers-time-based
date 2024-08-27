@@ -344,6 +344,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             self._state = True
 
             if self._state_internal == STATE_STOPPED:
+
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_off",
@@ -356,6 +357,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._open_switch_entity_id},
                     False,
                 )
+
+                self._state_internal = STATE_OPENING
 
             elif self._state_internal == STATE_CLOSING:
                 _LOGGER.debug("_async_handle_command :: changing direction")
