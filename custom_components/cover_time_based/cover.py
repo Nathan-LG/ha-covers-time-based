@@ -318,6 +318,15 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
+                    {"entity_id": self._open_switch_entity_id},
+                    True,
+                )
+
+                await asyncio.sleep(1)
+
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_on",
                     {"entity_id": self._close_switch_entity_id},
                     True,
                 )
@@ -331,6 +340,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             self._state = True
 
             if self._state_internal == STATE_STOPPED:
+                
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
@@ -349,6 +359,15 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     "homeassistant",
                     "turn_on",
                     {"entity_id": self._close_switch_entity_id},
+                    True,
+                )
+
+                await asyncio.sleep(1)
+
+                await self.hass.services.async_call(
+                    "homeassistant",
+                    "turn_on",
+                    {"entity_id": self._open_switch_entity_id},
                     True,
                 )
 
