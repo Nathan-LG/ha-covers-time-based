@@ -286,8 +286,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         if self.position_reached():
             _LOGGER.debug("auto_stop_if_necessary :: calling stop command")
 
-            self._is_travelling_internal = False
             await self._async_handle_command(SERVICE_STOP_COVER)
+            self._state_internal = STATE_STOPPED
             self.tc.stop()
 
     async def _async_handle_command(self, command, *args):
