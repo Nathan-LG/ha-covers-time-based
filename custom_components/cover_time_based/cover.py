@@ -40,11 +40,9 @@ DEFAULT_TRAVEL_TIME = 25
 CONF_OPEN_SWITCH_ENTITY_ID = "open_switch_entity_id"
 CONF_CLOSE_SWITCH_ENTITY_ID = "close_switch_entity_id"
 
-STATE_CLOSED = "CLOSED"
 STATE_CLOSING = "CLOSING"
 STATE_STOPPED = "STOPPED"
 STATE_OPENING = "OPENING"
-STATE_OPENED = "OPENED"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -302,7 +300,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             cmd = "DOWN"
             self._state = False
 
-            if self._state_internal in [STATE_OPENED, STATE_STOPPED]:
+            if self._state_internal == STATE_STOPPED:
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_off",
@@ -345,7 +343,7 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             cmd = "UP"
             self._state = True
 
-            if self._state_internal in [STATE_CLOSED, STATE_STOPPED]:
+            if self._state_internal == STATE_STOPPED:
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_off",
@@ -402,6 +400,9 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug(
                     "_async_handle_command :: turning on OPEN CMD because cover is opening/open"
                 )
+
+                self._state_internal = STATE_STOPPED
+
             elif self._state_internal == STATE_CLOSING:
                 await self.hass.services.async_call(
                     "homeassistant",
@@ -418,6 +419,8 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                 _LOGGER.debug(
                     "_async_handle_command :: turning on CLOSE CMD because cover is closing/closed"
                 )
+
+                self._state_internal = STATE_STOPPED
 
         _LOGGER.debug("--- DURING ---")
 
