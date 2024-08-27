@@ -303,12 +303,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             if self._state_internal == STATE_STOPPED:
                 await self.hass.services.async_call(
                     "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._open_switch_entity_id},
-                    False,
-                )
-                await self.hass.services.async_call(
-                    "homeassistant",
                     "turn_on",
                     {"entity_id": self._close_switch_entity_id},
                     False,
@@ -321,13 +315,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
 
                 self._state_internal = STATE_STOPPED
 
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._close_switch_entity_id},
-                    True,
-                )
-                await asyncio.sleep(10)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
@@ -344,13 +331,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
             self._state = True
 
             if self._state_internal == STATE_STOPPED:
-
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._close_switch_entity_id},
-                    False,
-                )
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
@@ -365,13 +345,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
 
                 self._state_internal = STATE_STOPPED
 
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._close_switch_entity_id},
-                    True,
-                )
-                await asyncio.sleep(10)
                 await self.hass.services.async_call(
                     "homeassistant",
                     "turn_on",
@@ -394,12 +367,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     {"entity_id": self._open_switch_entity_id},
                     False,
                 )
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._close_switch_entity_id},
-                    False,
-                )
                 _LOGGER.debug(
                     "_async_handle_command :: turning on OPEN CMD because cover is opening/open"
                 )
@@ -411,12 +378,6 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
                     "homeassistant",
                     "turn_on",
                     {"entity_id": self._close_switch_entity_id},
-                    False,
-                )
-                await self.hass.services.async_call(
-                    "homeassistant",
-                    "turn_off",
-                    {"entity_id": self._open_switch_entity_id},
                     False,
                 )
                 _LOGGER.debug(
