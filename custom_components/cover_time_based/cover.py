@@ -240,9 +240,9 @@ class CoverTimeBased(CoverEntity, RestoreEntity):
         )
         command = None
         if position < current_position:
-            command = SERVICE_CLOSE_COVER
-        elif position > current_position:
             command = SERVICE_OPEN_COVER
+        elif position > current_position:
+            command = SERVICE_CLOSE_COVER
         if command is not None:
             self.start_auto_updater()
             self.tc.start_travel(position)
